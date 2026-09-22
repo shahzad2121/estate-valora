@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { ReactNode } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import "./globals.css";
@@ -20,20 +20,15 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
 });
 
-export const metadata: Metadata = {
-  title: "Estate Valora | Property Insight Montreal",
-  description:
-    "Discover what shapes your home's value through a simple conversation. Luxury real estate guidance in Montreal.",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+/**
+ * Stable root shell — must NOT remount on locale change
+ * (avoids full-document blink when switching FR/EN).
+ */
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
-      lang="en"
+      lang="fr-CA"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-background font-sans text-foreground">

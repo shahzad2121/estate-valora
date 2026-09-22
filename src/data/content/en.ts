@@ -1,9 +1,8 @@
 /**
- * Site content — keep copy here so layout/components stay presentation-only.
- * Placeholder values for scaffolding; refine during design phases.
+ * English site content — secondary locale.
  */
 
-export const siteContent = {
+export const contentEn = {
   brand: {
     initials: "EV",
     name: "Estate Valora",
@@ -320,4 +319,17 @@ export const siteContent = {
   },
 } as const;
 
-export type SiteContent = typeof siteContent;
+/** Widen string literals so FR/EN content share one structural type. */
+type DeepStringify<T> = T extends string
+  ? string
+  : T extends number
+    ? number
+    : T extends boolean
+      ? boolean
+      : T extends readonly (infer U)[]
+        ? DeepStringify<U>[]
+        : T extends object
+          ? { [K in keyof T]: DeepStringify<T[K]> }
+          : T;
+
+export type SiteContent = DeepStringify<typeof contentEn>;

@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/utils";
+import { shouldSkipRevealForLocaleSwitch } from "@/i18n/routing";
 
 gsap.registerPlugin(useGSAP);
 
@@ -18,7 +19,7 @@ type RevealProps = {
 
 /**
  * Soft fade-up on scroll — once per element.
- * Section-level use only; skip hero / process / listings.
+ * Skips after a language switch so remounts don't blink.
  */
 export function Reveal({
   children,
@@ -33,6 +34,12 @@ export function Reveal({
     () => {
       const el = ref.current;
       if (!el || prefersReducedMotion()) return;
+
+      // Locale remount — keep content visible (no opacity flash)
+      if (shouldSkipRevealForLocaleSwitch()) {
+        gsap.set(el, { opacity: 1, y: 0 });
+        return;
+      }
 
       gsap.set(el, { opacity: 0, y });
 

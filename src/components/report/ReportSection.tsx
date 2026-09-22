@@ -1,4 +1,5 @@
-import { siteContent } from "@/data/content";
+import { getLocale } from "next-intl/server";
+import { getSiteContent } from "@/data/content";
 import { FusedCtaButton } from "@/components/ui/FusedCtaButton";
 import { Reveal } from "@/components/motion/Reveal";
 
@@ -29,7 +30,8 @@ const glassReport = {
  *   Left:  index / title / description / CTA (same vertical axis)
  *   Right: sample report + floating HUD chips
  */
-export function ReportSection() {
+export async function ReportSection() {
+  const locale = await getLocale();
   const {
     index,
     eyebrow,
@@ -39,7 +41,7 @@ export function ReportSection() {
     floaters,
     cta,
     ctaHref,
-  } = siteContent.report;
+  } = getSiteContent(locale).report;
 
   return (
     <section

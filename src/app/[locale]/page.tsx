@@ -1,3 +1,4 @@
+import { setRequestLocale } from "next-intl/server";
 import { Hero } from "@/components/hero/Hero";
 import { Experience } from "@/components/experience/Experience";
 import { Process } from "@/components/process/Process";
@@ -7,11 +8,18 @@ import { TestimonialsSection } from "@/components/testimonials/TestimonialsSecti
 import { FAQ } from "@/components/faq/FAQ";
 import { ContactSection } from "@/components/contact/ContactSection";
 
+type Props = {
+  params: Promise<{ locale: string }>;
+};
+
 /**
  * Landing page composition.
  * Advisor section temporarily hidden.
  */
-export default function Home() {
+export default async function Home({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <main>
       <Hero />

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { siteContent } from "@/data/content";
+import { useSiteContent } from "@/data/content/useSiteContent";
+import type { SiteContent } from "@/data/content";
 
 /** Previous larger frame sizes */
 const CENTER = { w: 300, h: 430 };
@@ -21,7 +22,7 @@ const SLOTS = [
   { offset: 3, size: "side" as const },
 ];
 
-type ListingItem = (typeof siteContent.listings.items)[number];
+type ListingItem = SiteContent["listings"]["items"][number];
 
 function SlotMedia({ item }: { item: ListingItem }) {
   const [current, setCurrent] = useState(item);
@@ -107,7 +108,7 @@ function SlotCaption({ item }: { item: ListingItem }) {
  * Listings — large fixed frames; tall = 2nd slot; header on one row.
  */
 export function ListingsSection() {
-  const { listings } = siteContent;
+  const { listings } = useSiteContent();
   const items = listings.items;
   const n = items.length;
   const [active, setActive] = useState(1);

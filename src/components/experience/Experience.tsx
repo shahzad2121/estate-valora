@@ -1,4 +1,5 @@
-import { siteContent } from "@/data/content";
+import { getLocale } from "next-intl/server";
+import { getSiteContent } from "@/data/content";
 import { FusedCtaButton } from "@/components/ui/FusedCtaButton";
 import { Reveal } from "@/components/motion/Reveal";
 
@@ -8,9 +9,10 @@ import { Reveal } from "@/components/motion/Reveal";
  *   (01) / LABEL     |  Large dual-tone headline
  *   Small body copy  |  CTA button  ← same baseline
  */
-export function Experience() {
+export async function Experience() {
+  const locale = await getLocale();
   const { index, eyebrow, headline, body, cta, ctaHref } =
-    siteContent.experience;
+    getSiteContent(locale).experience;
 
   return (
     <section

@@ -3,12 +3,14 @@
 import { useRef, useEffect } from "react";
 import { gsap, registerGsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/utils";
+import { useSiteContent } from "@/data/content/useSiteContent";
 
 /**
  * Animated scroll cue — sits beside hero stats at bottom-right.
  */
 export function ScrollIndicator() {
   const lineRef = useRef<HTMLDivElement>(null);
+  const { scrollLabel } = useSiteContent().hero;
 
   useEffect(() => {
     if (prefersReducedMotion() || !lineRef.current) return;
@@ -38,7 +40,7 @@ export function ScrollIndicator() {
         className="text-[9px] tracking-[0.3em] uppercase text-foreground-subtle"
         style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
       >
-        Scroll
+        {scrollLabel}
       </span>
 
       <div className="relative h-14 w-px overflow-hidden bg-white/10">

@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap, ScrollTrigger } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/utils";
+import { shouldSkipRevealForLocaleSwitch } from "@/i18n/routing";
 
 gsap.registerPlugin(useGSAP);
 
@@ -28,9 +29,10 @@ export function HeroScene({ children }: { children: React.ReactNode }) {
       if (!root) return;
 
       const reduced = prefersReducedMotion();
+      const skipIntro = shouldSkipRevealForLocaleSwitch();
 
-      // ── Entrance ──────────────────────────────────────────
-      if (!reduced) {
+      // ── Entrance (skip after language switch — avoids blink) ──
+      if (!reduced && !skipIntro) {
         const intro = gsap.timeline({
           defaults: { ease: "power3.out" },
         });
@@ -103,10 +105,8 @@ export function HeroScene({ children }: { children: React.ReactNode }) {
         scrollTrigger: {
           trigger: root,
           start: "top top",
-          // Shorter pin = less scroll “effort” to finish the handoff
           end: "+=45%",
           pin: true,
-          // true = 1:1 with scroll (no catch-up lag). Number = delayed smoothing.
           scrub: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -148,7 +148,6 @@ export function HeroScene({ children }: { children: React.ReactNode }) {
         );
       }
 
-      // Experience may mount after; refresh once layout settles
       requestAnimationFrame(() => ScrollTrigger.refresh());
     },
     { scope: containerRef, dependencies: [] },

@@ -1,12 +1,15 @@
-import { siteContent } from "@/data/content";
+import { getLocale } from "next-intl/server";
+import { getSiteContent } from "@/data/content";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
 
 /**
  * Advisor / broker section shell — design deferred.
  */
-export function AdvisorSection() {
-  const { eyebrow, name, title, description, cta } = siteContent.advisor;
+export async function AdvisorSection() {
+  const locale = await getLocale();
+  const { eyebrow, name, title, description, cta } =
+    getSiteContent(locale).advisor;
 
   return (
     <section

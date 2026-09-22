@@ -1,4 +1,6 @@
-import { siteContent } from "@/data/content";
+"use client";
+
+import { useSiteContent } from "@/data/content/useSiteContent";
 
 /**
  * Hero copy — compact block, pinned bottom-left.
@@ -6,7 +8,7 @@ import { siteContent } from "@/data/content";
  */
 export function HeroContent() {
   const { titleBefore, titleItalic, description, cta, ctaHref } =
-    siteContent.hero;
+    useSiteContent().hero;
 
   return (
     <div data-component="hero-content" className="max-w-xl">

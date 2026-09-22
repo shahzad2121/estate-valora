@@ -186,3 +186,12 @@
     animation: none !important;
   }
 }
+
+/* Soften locale route swaps (View Transitions API) */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.18s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}

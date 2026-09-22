@@ -1,6 +1,7 @@
-import { siteContent } from "@/data/content";
 import { FusedCtaButton } from "@/components/ui/FusedCtaButton";
 import { Reveal } from "@/components/motion/Reveal";
+import { getLocale } from "next-intl/server";
+import { getSiteContent } from "@/data/content";
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -50,7 +51,9 @@ const socialIcons: Record<
 /**
  * Contact — large dual-tone headline + fused CTA inline in the line + socials/footer.
  */
-export function ContactSection() {
+export async function ContactSection() {
+  const locale = await getLocale();
+  const content = getSiteContent(locale);
   const {
     index,
     eyebrow,
@@ -67,7 +70,7 @@ export function ContactSection() {
     chips,
     footerNav,
     footerNote,
-  } = siteContent.contact;
+  } = content.contact;
 
   return (
     <section
@@ -179,7 +182,7 @@ export function ContactSection() {
                 />
               </svg>
               <span className="text-[12px] font-medium tracking-[0.16em] uppercase text-foreground">
-                {siteContent.brand.name}
+                {content.brand.name}
               </span>
             </div>
 

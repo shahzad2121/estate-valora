@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { siteContent } from "@/data/content";
+import { getLocale } from "next-intl/server";
+import { getSiteContent } from "@/data/content";
 
 /** Vertical stagger: top / bottom / top */
 const staggerClass = [
@@ -26,8 +27,9 @@ const glassStyle = {
  * How it works — sticky photo + staggered glass steps.
  * Warm orbs sit behind the glass so frost picks up amber light.
  */
-export function Process() {
-  const { processSection, process } = siteContent;
+export async function Process() {
+  const locale = await getLocale();
+  const { processSection, process } = getSiteContent(locale);
 
   return (
     <section
