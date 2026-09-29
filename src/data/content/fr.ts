@@ -16,11 +16,12 @@ export const contentFr = {
   ],
 
   hero: {
-    titleBefore: "Vendez votre propriété avec",
-    titleItalic: "clarté.",
-    description: "Comprenez votre fourchette avant de décider.",
-    cta: "Voir ma fourchette de valeur",
+    titleBefore: "L'évaluation de votre propriété en",
+    titleItalic: "60 secondes.",
+    description: "Amorcez la conversation — sans engagement.",
+    cta: "Démarrer mon évaluation",
     ctaHref: "#experience",
+    secondary: "Vendez avec clarté.",
     scrollLabel: "DÉFILER POUR EXPLORER",
     stats: [
       { value: "$25M+", label: "Vendus" },

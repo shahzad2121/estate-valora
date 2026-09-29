@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { useSiteContent } from "@/data/content/useSiteContent";
 import type { SiteContent } from "@/data/content";
 
-/** Previous larger frame sizes */
+/** Desktop frame sizes */
 const CENTER = { w: 300, h: 430 };
 const SIDE = { w: 210, h: 250 };
+/** Mobile — shorter so card + arrows fit one viewport */
+const CENTER_M = { w: 250, h: 340 };
+const SIDE_M = { w: 160, h: 200 };
 const GAP = 18;
+const GAP_M = 14;
 
 /**
  * Slot layout (left → right):
@@ -72,7 +76,6 @@ function SlotCaption({ item }: { item: ListingItem }) {
 
   return (
     <div className="relative mt-2.5 min-h-[2rem]">
-      {/* Current caption stays visible — never drops to blank */}
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="truncate text-[11px] tracking-tight text-foreground md:text-xs">
           {current.title}
@@ -82,7 +85,6 @@ function SlotCaption({ item }: { item: ListingItem }) {
         </span>
       </div>
 
-      {/* New caption fades in on top, then becomes current */}
       {incoming ? (
         <div
           className="absolute inset-0 flex items-baseline justify-between gap-2 listing-crossfade"
@@ -104,8 +106,41 @@ function SlotCaption({ item }: { item: ListingItem }) {
   );
 }
 
+function NavArrows({
+  onPrev,
+  onNext,
+  className = "",
+}: {
+  onPrev: () => void;
+  onNext: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={`flex shrink-0 items-center gap-3 ${className}`}>
+      <button
+        type="button"
+        onClick={onPrev}
+        aria-label="Previous property"
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-foreground transition-colors duration-200 hover:border-electric/40 hover:text-electric md:h-12 md:w-12"
+      >
+        ‹
+      </button>
+      <button
+        type="button"
+        onClick={onNext}
+        aria-label="Next property"
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-foreground transition-colors duration-200 hover:border-electric/40 hover:text-electric md:h-12 md:w-12"
+      >
+        ›
+      </button>
+    </div>
+  );
+}
+
 /**
- * Listings — large fixed frames; tall = 2nd slot; header on one row.
+ * Listings — tall card is 2nd slot.
+ * Mobile: compact card + arrows directly under it (one-screen UX).
+ * Desktop: original sizes, arrows with description row.
  */
 export function ListingsSection() {
   const { listings } = useSiteContent();
@@ -118,14 +153,16 @@ export function ListingsSection() {
   const prev = () => setActive((i) => (i - 1 + n) % n);
   const next = () => setActive((i) => (i + 1) % n);
 
+  const centerMidMobile = SIDE_M.w + GAP_M + CENTER_M.w / 2;
+  const centerMidDesktop = SIDE.w + GAP + CENTER.w / 2;
+
   return (
     <section
       id="listings"
       data-section="listings"
-      className="relative z-20 overflow-hidden py-14 md:py-16 lg:py-20"
+      className="relative z-20 overflow-hidden py-10 md:py-16 lg:py-20"
       aria-labelledby="listings-title"
       style={{
-        /* Deep black × gold mix — distinct from the cooler report section */
         background:
           "linear-gradient(165deg, #0a0806 0%, #12100c 38%, #0c0a08 72%, #080706 100%)",
       }}
@@ -139,9 +176,8 @@ export function ListingsSection() {
         }}
       />
 
-      {/* Label + headline on the same line */}
       <div className="page-container relative z-10">
-        <div className="flex flex-row items-baseline justify-between gap-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-baseline md:justify-between md:gap-6">
           <p className="flex shrink-0 items-center gap-3 text-[11px] tracking-[0.22em] uppercase">
             <span className="text-electric">{listings.index}</span>
             <span className="h-px w-8 bg-electric-soft/50" aria-hidden="true" />
@@ -150,33 +186,43 @@ export function ListingsSection() {
 
           <h2
             id="listings-title"
-            className="max-w-xl text-right text-[clamp(1.15rem,2.2vw,1.85rem)] font-light leading-[1.3] tracking-[-0.02em] text-foreground"
+            className="max-w-xl text-left text-[clamp(1.25rem,4.2vw,1.85rem)] font-light leading-[1.3] tracking-[-0.02em] text-foreground md:text-right md:text-[clamp(1.15rem,2.2vw,1.85rem)]"
           >
             {listings.title}
           </h2>
         </div>
       </div>
 
-      <div className="page-container relative z-10 mt-6 md:mt-7">
+      <div className="relative z-10 mt-5 overflow-x-hidden md:mt-7">
         <div
-          className="flex items-end justify-start overflow-hidden"
-          style={{ gap: GAP }}
+          className="flex w-max items-end gap-3.5 max-md:translate-x-[calc(50vw-var(--listings-center-mid-m))] md:mx-auto md:w-full md:max-w-[var(--container-max)] md:translate-x-0 md:gap-[18px] md:px-[var(--page-padding)]"
+          style={
+            {
+              ["--listings-center-mid-m"]: `${centerMidMobile}px`,
+              ["--listings-center-mid"]: `${centerMidDesktop}px`,
+            } as CSSProperties
+          }
         >
           {SLOTS.map((slot) => {
             const item = at(slot.offset);
             const isCenter = slot.size === "center";
-            const frame = isCenter ? CENTER : SIDE;
 
             return (
               <article
                 key={slot.offset}
-                className="shrink-0"
-                style={{ width: frame.w }}
+                className={
+                  isCenter
+                    ? "w-[250px] shrink-0 md:w-[300px]"
+                    : "w-[160px] shrink-0 md:w-[210px]"
+                }
                 aria-current={isCenter ? "true" : undefined}
               >
                 <div
-                  className="relative overflow-hidden rounded-2xl"
-                  style={{ width: frame.w, height: frame.h }}
+                  className={
+                    isCenter
+                      ? "relative h-[340px] w-[250px] overflow-hidden rounded-2xl md:h-[430px] md:w-[300px]"
+                      : "relative h-[200px] w-[160px] overflow-hidden rounded-2xl md:h-[250px] md:w-[210px]"
+                  }
                 >
                   <SlotMedia item={item} />
                 </div>
@@ -187,29 +233,17 @@ export function ListingsSection() {
         </div>
       </div>
 
-      <div className="page-container relative z-10 mt-8 flex items-end justify-between gap-6">
+      {/* Mobile: arrows directly under the carousel so they stay on-screen */}
+      <div className="relative z-10 mt-5 flex justify-center md:hidden">
+        <NavArrows onPrev={prev} onNext={next} />
+      </div>
+
+      <div className="page-container relative z-10 mt-6 flex items-end justify-between gap-6 md:mt-8">
         <p className="max-w-xs text-sm leading-relaxed text-foreground-muted">
           {listings.description}
         </p>
 
-        <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
-            onClick={prev}
-            aria-label="Previous property"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 text-foreground transition-colors duration-200 hover:border-electric/40 hover:text-electric"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            onClick={next}
-            aria-label="Next property"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 text-foreground transition-colors duration-200 hover:border-electric/40 hover:text-electric"
-          >
-            ›
-          </button>
-        </div>
+        <NavArrows onPrev={prev} onNext={next} className="hidden md:flex" />
       </div>
     </section>
   );

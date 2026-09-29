@@ -52,21 +52,30 @@ export function HeroVideo() {
         preload="auto"
       />
 
-      {/* Left — light touch only near the bottom copy zone */}
+      {/* Left — soft read zone for raised offer */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to right, rgba(7,9,11,0.45) 0%, rgba(7,9,11,0.15) 35%, transparent 60%)",
+            "linear-gradient(to right, rgba(7,9,11,0.55) 0%, rgba(7,9,11,0.28) 40%, transparent 68%)",
         }}
       />
 
-      {/* Bottom — headline legibility */}
+      {/* Mid — legibility for upper-middle conversion copy */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to top, rgba(7,9,11,0.85) 0%, rgba(7,9,11,0.35) 22%, transparent 45%)",
+            "radial-gradient(ellipse 70% 55% at 30% 42%, rgba(7,9,11,0.55) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Bottom — stats / scroll cue */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(7,9,11,0.75) 0%, rgba(7,9,11,0.25) 18%, transparent 40%)",
         }}
       />
 
@@ -77,7 +86,6 @@ export function HeroVideo() {
           background:
             "linear-gradient(to bottom, rgba(7,9,11,0.55) 0%, transparent 22%)",
         }}
-      />
-    </div>
+      />    </div>
   );
 }

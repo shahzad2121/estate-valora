@@ -81,16 +81,22 @@ export function HeroScene({ children }: { children: React.ReactNode }) {
             1.4,
           )
           .fromTo(
+            '[data-hero="secondary"]',
+            { opacity: 0 },
+            { opacity: 1, duration: 0.5 },
+            1.55,
+          )
+          .fromTo(
             '[data-hero="stat-card"]',
             { opacity: 0, y: 16 },
             { opacity: 1, y: 0, duration: 0.55, stagger: 0.1 },
-            1.55,
+            1.65,
           )
           .fromTo(
             '[data-hero="scroll-indicator"]',
             { opacity: 0 },
             { opacity: 1, duration: 0.7 },
-            1.75,
+            1.85,
           );
       }
 

@@ -16,11 +16,12 @@ export const contentEn = {
   ],
 
   hero: {
-    titleBefore: "Sell your home with",
-    titleItalic: "clarity.",
-    description: "Understand your range before you decide.",
-    cta: "See my value range",
+    titleBefore: "Your home's evaluation in",
+    titleItalic: "60 seconds.",
+    description: "Start the conversation — no commitment.",
+    cta: "Start my evaluation",
     ctaHref: "#experience",
+    secondary: "Sell with clarity.",
     scrollLabel: "SCROLL TO EXPLORE",
     /** Confirm remaining figures with client — $25M+ is confirmed */
     stats: [

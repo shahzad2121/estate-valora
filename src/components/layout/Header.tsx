@@ -8,7 +8,7 @@ import { useSiteContent } from "@/data/content/useSiteContent";
  * Site header — glassmorphic center nav + fused SVG CTA + locale switcher.
  */
 export function Header() {
-  const { brand, nav, experience } = useSiteContent();
+  const { brand, nav, hero } = useSiteContent();
 
   return (
     <header
@@ -62,8 +62,8 @@ export function Header() {
       <div className="flex items-center gap-3">
         <LocaleSwitcher />
         <FusedCtaButton
-          href="#experience"
-          label={experience.cta}
+          href={hero.ctaHref}
+          label={hero.cta}
           dataAttr="header-cta"
           className="hidden md:block"
         />
