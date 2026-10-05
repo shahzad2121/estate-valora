@@ -4,6 +4,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { useSiteContent } from "@/data/content/useSiteContent";
 import type { SiteContent } from "@/data/content";
+import { ListingsLightbox } from "@/components/listings/ListingsLightbox";
 
 /** Desktop frame sizes */
 const CENTER = { w: 300, h: 430 };
@@ -26,6 +27,10 @@ const SLOTS = [
   { offset: 3, size: "side" as const },
 ];
 
+/** Desktop carousel row width — description + nav share this width */
+const DESKTOP_TRACK_W =
+  SIDE.w * (SLOTS.length - 1) + CENTER.w + GAP * (SLOTS.length - 1);
+
 type ListingItem = SiteContent["listings"]["items"][number];
 
 function SlotMedia({ item }: { item: ListingItem }) {
@@ -38,12 +43,13 @@ function SlotMedia({ item }: { item: ListingItem }) {
   }, [item, current.id]);
 
   return (
-    <div className="absolute inset-0">
+    <div className="absolute inset-0 [backface-visibility:hidden] [transform:translateZ(0)]">
       <Image
         src={current.image}
         alt={current.title}
         fill
-        sizes="300px"
+        quality={90}
+        sizes="(max-width: 768px) 560px, 640px"
         className="object-cover"
       />
       {incoming ? (
@@ -52,7 +58,8 @@ function SlotMedia({ item }: { item: ListingItem }) {
           src={incoming.image}
           alt={incoming.title}
           fill
-          sizes="300px"
+          quality={90}
+          sizes="(max-width: 768px) 560px, 640px"
           className="object-cover listing-crossfade"
           onAnimationEnd={() => {
             setCurrent(incoming);
@@ -147,8 +154,16 @@ export function ListingsSection() {
   const items = listings.items;
   const n = items.length;
   const [active, setActive] = useState(1);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const at = (offset: number) => items[(active + offset + n * 10) % n];
+
+  const globalIndex = (offset: number) => (active + offset + n * 10) % n;
+
+  const openLightbox = (index: number) => {
+    setActive(index);
+    setLightboxIndex(index);
+  };
 
   const prev = () => setActive((i) => (i - 1 + n) % n);
   const next = () => setActive((i) => (i + 1) % n);
@@ -195,7 +210,7 @@ export function ListingsSection() {
 
       <div className="relative z-10 mt-5 overflow-x-hidden md:mt-7">
         <div
-          className="flex w-max items-end gap-3.5 max-md:translate-x-[calc(50vw-var(--listings-center-mid-m))] md:mx-auto md:w-full md:max-w-[var(--container-max)] md:translate-x-0 md:gap-[18px] md:px-[var(--page-padding)]"
+          className="flex w-max items-end gap-3.5 max-md:[transform:translate3d(calc(50vw-var(--listings-center-mid-m)),0,0)] md:mx-auto md:w-full md:max-w-[var(--container-max)] md:transform-none md:gap-[18px] md:px-[var(--page-padding)]"
           style={
             {
               ["--listings-center-mid-m"]: `${centerMidMobile}px`,
@@ -217,15 +232,19 @@ export function ListingsSection() {
                 }
                 aria-current={isCenter ? "true" : undefined}
               >
-                <div
+                <button
+                  type="button"
+                  onClick={() => openLightbox(globalIndex(slot.offset))}
                   className={
                     isCenter
-                      ? "relative h-[340px] w-[250px] overflow-hidden rounded-2xl md:h-[430px] md:w-[300px]"
-                      : "relative h-[200px] w-[160px] overflow-hidden rounded-2xl md:h-[250px] md:w-[210px]"
+                      ? "group relative block h-[340px] w-[250px] cursor-zoom-in overflow-hidden rounded-2xl md:h-[430px] md:w-[300px]"
+                      : "group relative block h-[200px] w-[160px] cursor-zoom-in overflow-hidden rounded-2xl md:h-[250px] md:w-[210px]"
                   }
+                  aria-label={`View ${item.title}, ${item.meta}`}
                 >
                   <SlotMedia item={item} />
-                </div>
+                  <span className="pointer-events-none absolute inset-0 ring-0 ring-white/0 transition-[box-shadow] duration-200 group-hover:ring-2 group-hover:ring-white/20 group-focus-visible:ring-2 group-focus-visible:ring-electric/50" />
+                </button>
                 <SlotCaption item={item} />
               </article>
             );
@@ -238,13 +257,32 @@ export function ListingsSection() {
         <NavArrows onPrev={prev} onNext={next} />
       </div>
 
-      <div className="page-container relative z-10 mt-6 flex items-end justify-between gap-6 md:mt-8">
-        <p className="max-w-xs text-sm leading-relaxed text-foreground-muted">
-          {listings.description}
-        </p>
+      <div className="page-container relative z-10 mt-6 md:mt-8">
+        <div
+          className="flex items-end justify-between gap-6 md:max-w-[var(--listings-track-w)]"
+          style={
+            { ["--listings-track-w"]: `${DESKTOP_TRACK_W}px` } as CSSProperties
+          }
+        >
+          <p className="max-w-xs text-sm leading-relaxed text-foreground-muted">
+            {listings.description}
+          </p>
 
-        <NavArrows onPrev={prev} onNext={next} className="hidden md:flex" />
+          <NavArrows onPrev={prev} onNext={next} className="hidden md:flex" />
+        </div>
       </div>
+
+      {lightboxIndex !== null ? (
+        <ListingsLightbox
+          items={items}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onIndexChange={(i) => {
+            setLightboxIndex(i);
+            setActive(i);
+          }}
+        />
+      ) : null}
     </section>
   );
 }

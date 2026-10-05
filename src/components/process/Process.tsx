@@ -42,23 +42,29 @@ export async function Process() {
         className="sticky top-0 h-svh w-full overflow-hidden"
         aria-hidden="true"
       >
-        <Image
-          src={processSection.background}
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover"
-          priority={false}
-        />
-        <div className="absolute inset-0 bg-background/50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/65 via-background/25 to-background/75" />
-        <div
-          className="absolute inset-0 opacity-25"
-          style={{
-            background:
-              "radial-gradient(ellipse 55% 45% at 75% 35%, rgba(215,168,102,0.22) 0%, transparent 65%)",
-          }}
-        />
+        {/*
+          next/image `fill` requires a relative/absolute/fixed parent — not sticky.
+        */}
+        <div className="relative h-full w-full">
+          <Image
+            src={processSection.background}
+            alt=""
+            fill
+            quality={90}
+            sizes="100vw"
+            className="object-cover"
+            priority={false}
+          />
+          <div className="absolute inset-0 bg-background/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/65 via-background/25 to-background/75" />
+          <div
+            className="absolute inset-0 opacity-25"
+            style={{
+              background:
+                "radial-gradient(ellipse 55% 45% at 75% 35%, rgba(215,168,102,0.22) 0%, transparent 65%)",
+            }}
+          />
+        </div>
       </div>
 
       <div className="page-container relative z-10 -mt-[100svh] flex min-h-[130svh] flex-col justify-center py-14 md:py-16 lg:py-20">
