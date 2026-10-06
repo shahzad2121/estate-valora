@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { useSiteContent } from "@/data/content/useSiteContent";
 import type { SiteContent } from "@/data/content";
@@ -33,82 +33,35 @@ const DESKTOP_TRACK_W =
 
 type ListingItem = SiteContent["listings"]["items"][number];
 
+/** Instant swap — no lingering old photo (avoids same image across slots). */
 function SlotMedia({ item }: { item: ListingItem }) {
-  const [current, setCurrent] = useState(item);
-  const [incoming, setIncoming] = useState<ListingItem | null>(null);
-
-  useEffect(() => {
-    if (item.id === current.id) return;
-    setIncoming(item);
-  }, [item, current.id]);
-
   return (
     <div className="absolute inset-0 [backface-visibility:hidden] [transform:translateZ(0)]">
       <Image
-        src={current.image}
-        alt={current.title}
+        key={item.id}
+        src={item.image}
+        alt={item.title}
         fill
         quality={90}
         sizes="(max-width: 768px) 560px, 640px"
         className="object-cover"
       />
-      {incoming ? (
-        <Image
-          key={incoming.id}
-          src={incoming.image}
-          alt={incoming.title}
-          fill
-          quality={90}
-          sizes="(max-width: 768px) 560px, 640px"
-          className="object-cover listing-crossfade"
-          onAnimationEnd={() => {
-            setCurrent(incoming);
-            setIncoming(null);
-          }}
-        />
-      ) : null}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0c0a08]/55 via-transparent to-transparent" />
     </div>
   );
 }
 
 function SlotCaption({ item }: { item: ListingItem }) {
-  const [current, setCurrent] = useState(item);
-  const [incoming, setIncoming] = useState<ListingItem | null>(null);
-
-  useEffect(() => {
-    if (item.id === current.id) return;
-    setIncoming(item);
-  }, [item, current.id]);
-
   return (
     <div className="relative mt-2.5 min-h-[2rem]">
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="truncate text-[11px] tracking-tight text-foreground md:text-xs">
-          {current.title}
+          {item.title}
         </h3>
         <span className="shrink-0 text-[9px] tracking-wide text-foreground-subtle md:text-[10px]">
-          {current.meta}
+          {item.meta}
         </span>
       </div>
-
-      {incoming ? (
-        <div
-          className="absolute inset-0 flex items-baseline justify-between gap-2 listing-crossfade"
-          style={{ background: "#0c0a08" }}
-          onAnimationEnd={() => {
-            setCurrent(incoming);
-            setIncoming(null);
-          }}
-        >
-          <h3 className="truncate text-[11px] tracking-tight text-foreground md:text-xs">
-            {incoming.title}
-          </h3>
-          <span className="shrink-0 text-[9px] tracking-wide text-foreground-subtle md:text-[10px]">
-            {incoming.meta}
-          </span>
-        </div>
-      ) : null}
     </div>
   );
 }
