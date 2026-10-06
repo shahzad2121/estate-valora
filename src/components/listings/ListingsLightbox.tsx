@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
@@ -27,6 +21,11 @@ type ListingsLightboxProps = {
 
 const SWIPE_THRESHOLD = 48;
 
+/**
+ * Full-screen listing gallery.
+ * Shows one image at a time (keyed by index) so title/meta and photo always match.
+ * GSAP fades on open + on slide change; swipe / arrows / keyboard navigate.
+ */
 export function ListingsLightbox({
   items,
   index,
@@ -35,12 +34,9 @@ export function ListingsLightbox({
 }: ListingsLightboxProps) {
   const shellRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
-  /** Pixel width of one slide — avoids % rounding peek on 11 slides */
-  const [slideWidth, setSlideWidth] = useState(0);
 
   registerGsap();
 
@@ -63,24 +59,6 @@ export function ListingsLightbox({
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
-    };
-  }, []);
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-
-    const measure = () => {
-      setSlideWidth(Math.floor(viewport.getBoundingClientRect().width));
-    };
-
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(viewport);
-    window.addEventListener("resize", measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
     };
   }, []);
 
@@ -113,46 +91,29 @@ export function ListingsLightbox({
       );
       gsap.fromTo(
         panel,
-        { opacity: 0, scale: 0.92, y: 16 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "power3.out" },
+        { opacity: 0, scale: 0.94, y: 12 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "power3.out" },
       );
     },
     { scope: shellRef },
   );
 
-  const syncTrackX = useCallback(
-    (animate: boolean) => {
-      const track = trackRef.current;
-      if (!track || slideWidth <= 0) return;
-
-      const x = -index * slideWidth;
-
-      if (!animate || prefersReducedMotion()) {
-        gsap.set(track, { x });
-        return;
-      }
-
-      gsap.to(track, {
-        x,
-        duration: 0.45,
-        ease: "power3.out",
-      });
-    },
-    [index, slideWidth],
-  );
-
-  const prevIndexRef = useRef(index);
-
-  useLayoutEffect(() => {
-    syncTrackX(false);
-  }, [index, slideWidth, syncTrackX]);
-
+  // Fade the media when the active listing changes
   useEffect(() => {
-    if (prevIndexRef.current === index) return;
-    prevIndexRef.current = index;
-    if (slideWidth <= 0) return;
-    syncTrackX(true);
-  }, [index, slideWidth, syncTrackX]);
+    const media = mediaRef.current;
+    if (!media) return;
+
+    if (prefersReducedMotion()) {
+      gsap.set(media, { opacity: 1 });
+      return;
+    }
+
+    gsap.fromTo(
+      media,
+      { opacity: 0.35 },
+      { opacity: 1, duration: 0.28, ease: "power2.out" },
+    );
+  }, [index]);
 
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0]?.clientX ?? null;
@@ -218,43 +179,22 @@ export function ListingsLightbox({
           </button>
 
           <div
-            ref={viewportRef}
+            ref={mediaRef}
             className="relative max-h-[78vh] min-h-[200px] w-full flex-1 overflow-hidden bg-[#07090b]"
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
-            style={{ touchAction: "pan-x pan-y", aspectRatio: "1290 / 833" }}
+            style={{ touchAction: "pan-y", aspectRatio: "1290 / 833" }}
           >
-            <div
-              ref={trackRef}
-              className="flex h-full will-change-transform"
-              style={
-                slideWidth > 0
-                  ? { width: slideWidth * n }
-                  : { width: "100%" }
-              }
-            >
-              {items.map((listing) => (
-                <div
-                  key={listing.id}
-                  className="relative h-full shrink-0 overflow-hidden bg-[#07090b]"
-                  style={
-                    slideWidth > 0
-                      ? { width: slideWidth }
-                      : { width: "100%" }
-                  }
-                >
-                  <Image
-                    src={listing.image}
-                    alt={listing.title}
-                    fill
-                    quality={90}
-                    sizes="(max-width: 768px) 100vw, 1024px"
-                    className="object-contain"
-                    priority={listing.id === item.id}
-                  />
-                </div>
-              ))}
-            </div>
+            <Image
+              key={item.id}
+              src={item.image}
+              alt={item.title}
+              fill
+              quality={90}
+              sizes="(max-width: 768px) 100vw, 1024px"
+              className="object-contain"
+              priority
+            />
           </div>
 
           <button
